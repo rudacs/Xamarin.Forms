@@ -18,6 +18,9 @@ namespace Xamarin.Forms.Platform.WinPhone
 			AutoPackage = false;
 		}
 
+		IPageController PageController => Element as IPageController;
+		IElementController ElementController => Element as IElementController;
+
 		protected override void OnElementChanged(ElementChangedEventArgs<NavigationPage> e)
 		{
 			base.OnElementChanged(e);
@@ -34,9 +37,10 @@ namespace Xamarin.Forms.Platform.WinPhone
 				Element.PropertyChanged += OnElementPropertyChanged;
 
 				var platform = (Platform)Element.Platform;
-				Element.ContainerArea = new Rectangle(new Point(0, 0), platform.Size);
 
-				platform.SizeChanged += (sender, args) => Element.ContainerArea = new Rectangle(new Point(0, 0), platform.Size);
+				PageController.ContainerArea = new Rectangle(new Point(0, 0), platform.Size);
+
+				platform.SizeChanged += (sender, args) => PageController.ContainerArea = new Rectangle(new Point(0, 0), platform.Size);
 
 				List<Page> stack = GetStack();
 				if (stack.Count > 0)
@@ -56,7 +60,7 @@ namespace Xamarin.Forms.Platform.WinPhone
 			else
 				init();
 
-			Loaded += (sender, args) => Element.SendAppearing();
+			Loaded += (sender, args) => PageController.SendAppearing();
 			Unloaded += OnUnloaded;
 		}
 
@@ -76,10 +80,10 @@ namespace Xamarin.Forms.Platform.WinPhone
 
 		List<Page> GetStack()
 		{
-			int count = Element.InternalChildren.Count;
+			int count = PageController.InternalChildren.Count;
 			var stack = new List<Page>(count);
 			for (var i = 0; i < count; i++)
-				stack.Add((Page)Element.InternalChildren[i]);
+				stack.Add((Page)PageController.InternalChildren[i]);
 
 			return stack;
 		}
@@ -94,9 +98,9 @@ namespace Xamarin.Forms.Platform.WinPhone
 			if (platform == null)
 				return;
 
-			for (var i = 0; i < Element.LogicalChildren.Count; i++)
+			for (var i = 0; i < ElementController.LogicalChildren.Count; i++)
 			{
-				var page = Element.LogicalChildren[i] as Page;
+				var page = ElementController.LogicalChildren[i] as Page;
 				if (page != null)
 					platform.RemovePage(page, false);
 			}
@@ -104,7 +108,7 @@ namespace Xamarin.Forms.Platform.WinPhone
 
 		void OnUnloaded(object sender, RoutedEventArgs args)
 		{
-			Element.SendDisappearing();
+			PageController.SendDisappearing();
 		}
 
 		void PageOnPopped(object sender, NavigationRequestedEventArgs eventArg)
@@ -133,7 +137,7 @@ namespace Xamarin.Forms.Platform.WinPhone
 			if (platform != null)
 			{
 				if (e.Page == Element.StackCopy.LastOrDefault())
-					e.Page.IgnoresContainerArea = true;
+					((IPageController)e.Page).IgnoresContainerArea = true;
 				e.Task = platform.PushCore(e.Page, Element, e.Animated, e.Realize).ContinueWith((t, o) => true, null);
 			}
 		}
@@ -166,7 +170,7 @@ namespace Xamarin.Forms.Platform.WinPhone
 				{
 					Children.RemoveAt(0);
 
-					var page = renderer.Element as Page;
+					var page = renderer.Element as IPageController;
 					if (page != null)
 						page.IgnoresContainerArea = false;
 
@@ -180,7 +184,7 @@ namespace Xamarin.Forms.Platform.WinPhone
 			if (first == null)
 				return;
 
-			first.IgnoresContainerArea = true;
+			((IPageController)first).IgnoresContainerArea = true;
 
 			IVisualElementRenderer firstRenderer = Platform.GetRenderer(first);
 			if (firstRenderer == null)

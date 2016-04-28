@@ -48,6 +48,10 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 			}
 		}
 
+		IPageController MasterPageController => Element.Master as IPageController;
+		IPageController DetailPageController => Element.Detail as IPageController;
+		IPageController PageController => Element as IPageController;
+
 		void IDrawerListener.OnDrawerClosed(global::Android.Views.View drawerView)
 		{
 		}
@@ -197,13 +201,13 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 		protected override void OnAttachedToWindow()
 		{
 			base.OnAttachedToWindow();
-			Element.SendAppearing();
+			PageController.SendAppearing();
 		}
 
 		protected override void OnDetachedFromWindow()
 		{
 			base.OnDetachedFromWindow();
-			Element.SendDisappearing();
+			PageController.SendDisappearing();
 		}
 
 		protected virtual void OnElementChanged(VisualElement oldElement, VisualElement newElement)
@@ -264,14 +268,14 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 
 		void MasterDetailPageAppearing(object sender, EventArgs e)
 		{
-			Element.Master?.SendAppearing();
-			Element.Detail?.SendAppearing();
+			MasterPageController?.SendAppearing();
+			DetailPageController?.SendAppearing();
 		}
 
 		void MasterDetailPageDisappearing(object sender, EventArgs e)
 		{
-			Element.Master?.SendDisappearing();
-			Element.Detail?.SendDisappearing();
+			MasterPageController?.SendDisappearing();
+			DetailPageController?.SendDisappearing();
 		}
 
 		void OnBackButtonPressed(object sender, BackButtonPressedEventArgs backButtonPressedEventArgs)

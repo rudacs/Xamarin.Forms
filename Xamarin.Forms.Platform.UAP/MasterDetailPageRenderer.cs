@@ -55,6 +55,8 @@ namespace Xamarin.Forms.Platform.UWP
 		{
 			set { Control.ToolbarForeground = value; }
 		}
+		
+IPageController PageController => Element as IPageController;
 
 		bool ITitleProvider.ShowTitle
 		{
@@ -194,16 +196,13 @@ namespace Xamarin.Forms.Platform.UWP
 			if (Element == null)
 				return;
 
-			Element.SendAppearing();
+			PageController.SendAppearing();
 			UpdateBounds();
 		}
 
 		void OnControlUnlaoded(object sender, RoutedEventArgs routedEventArgs)
 		{
-			if (Element == null)
-				return;
-
-			Element.SendDisappearing();
+			PageController?.SendDisappearing();
 		}
 
 		void OnDetailPropertyChanged(object sender, PropertyChangedEventArgs e)

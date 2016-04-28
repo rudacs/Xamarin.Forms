@@ -34,11 +34,13 @@ namespace Xamarin.Forms.Platform.Android
 			return OnPushAsync(page, animated);
 		}
 
+		IPageController PageController => Element as IPageController;
+
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
-				foreach (VisualElement child in Element.InternalChildren)
+				foreach (VisualElement child in PageController.InternalChildren)
 				{
 					IVisualElementRenderer renderer = Platform.GetRenderer(child);
 					if (renderer != null)
@@ -61,13 +63,13 @@ namespace Xamarin.Forms.Platform.Android
 		protected override void OnAttachedToWindow()
 		{
 			base.OnAttachedToWindow();
-			Element.SendAppearing();
+			PageController.SendAppearing();
 		}
 
 		protected override void OnDetachedFromWindow()
 		{
 			base.OnDetachedFromWindow();
-			Element.SendDisappearing();
+			PageController.SendDisappearing();
 		}
 
 		protected override void OnElementChanged(ElementChangedEventArgs<NavigationPage> e)
@@ -206,9 +208,9 @@ namespace Xamarin.Forms.Platform.Android
 				{
 					// animate out
 					if (containerToAdd.Parent != this)
-						AddView(containerToAdd, Element.LogicalChildren.IndexOf(rendererToAdd.Element));
+						AddView(containerToAdd, ((IElementController)Element).LogicalChildren.IndexOf(rendererToAdd.Element));
 					else
-						((Page)rendererToAdd.Element).SendAppearing();
+						((IPageController)rendererToAdd.Element).SendAppearing();
 					containerToAdd.Visibility = ViewStates.Visible;
 
 					if (containerToRemove != null)
@@ -246,7 +248,7 @@ namespace Xamarin.Forms.Platform.Android
 					if (!containerAlreadyAdded)
 						AddView(containerToAdd);
 					else
-						((Page)rendererToAdd.Element).SendAppearing();
+						((IPageController)rendererToAdd.Element).SendAppearing();
 
 					if (existing)
 						Element.ForceLayout();
@@ -259,8 +261,7 @@ namespace Xamarin.Forms.Platform.Android
 						if (containerToRemove != null && containerToRemove.Handle != IntPtr.Zero)
 						{
 							containerToRemove.Visibility = ViewStates.Gone;
-							if (pageToRemove != null)
-								pageToRemove.SendDisappearing();
+							((IPageController)pageToRemove)?.SendDisappearing();
 						}
 						s_currentAnimation = null;
 						tcs.TrySetResult(true);
@@ -282,10 +283,10 @@ namespace Xamarin.Forms.Platform.Android
 				if (containerToAdd.Parent != this)
 					AddView(containerToAdd);
 				else
-					((Page)rendererToAdd.Element).SendAppearing();
+					((IPageController)rendererToAdd.Element).SendAppearing();
 
 				if (containerToRemove != null && !removed)
-					pageToRemove.SendDisappearing();
+					((IPageController)pageToRemove).SendDisappearing();
 
 				if (existing)
 					Element.ForceLayout();

@@ -72,6 +72,8 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 
 		FragmentManager FragmentManager => _fragmentManager ?? (_fragmentManager = ((FormsAppCompatActivity)Context).SupportFragmentManager);
 
+		IPageController PageController => Element as IPageController;
+
 		bool ToolbarVisible
 		{
 			get { return _toolbarVisible; }
@@ -129,9 +131,9 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 
 				if (Element != null)
 				{
-					for (var i = 0; i < Element.InternalChildren.Count; i++)
+					for (var i = 0; i < PageController.InternalChildren.Count; i++)
 					{
-						var child = Element.InternalChildren[i] as VisualElement;
+						var child = PageController.InternalChildren[i] as VisualElement;
 						if (child == null)
 							continue;
 						IVisualElementRenderer renderer = Android.Platform.GetRenderer(child);
@@ -142,7 +144,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 					Element.PopToRootRequested -= OnPoppedToRoot;
 					Element.InsertPageBeforeRequested -= OnInsertPageBeforeRequested;
 					Element.RemovePageRequested -= OnRemovePageRequested;
-					Element.SendDisappearing();
+					PageController.SendDisappearing();
 				}
 
 				if (_toolbarTracker != null)
@@ -170,7 +172,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 		protected override void OnAttachedToWindow()
 		{
 			base.OnAttachedToWindow();
-			Element.SendAppearing();
+			PageController.SendAppearing();
 			_fragmentStack.Last().UserVisibleHint = true;
 			RegisterToolbar();
 			UpdateToolbar();
@@ -179,7 +181,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 		protected override void OnDetachedFromWindow()
 		{
 			base.OnDetachedFromWindow();
-			Element.SendDisappearing();
+			PageController.SendDisappearing();
 		}
 
 		protected override void OnElementChanged(ElementChangedEventArgs<NavigationPage> e)
@@ -264,7 +266,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 			int containerHeight = ToolbarVisible ? internalHeight : b - t;
 			containerHeight -= ContainerPadding;
 
-			Element.ContainerArea = new Rectangle(0, 0, Context.FromPixels(r - l), Context.FromPixels(containerHeight));
+			PageController.ContainerArea = new Rectangle(0, 0, Context.FromPixels(r - l), Context.FromPixels(containerHeight));
 			// Potential for optimization here, the exact conditions by which you don't need to do this are complex
 			// and the cost of doing when it's not needed is moderate to low since the layout will short circuit pretty fast
 			Element.ForceLayout();
@@ -385,7 +387,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 		{
 			UpdateToolbar();
 
-			int index = Element.InternalChildren.IndexOf(before);
+			int index = PageController.InternalChildren.IndexOf(before);
 			if (index == -1)
 				throw new InvalidOperationException("This should never happen, please file a bug");
 
@@ -456,7 +458,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 
 			if (masterDetailPage == null)
 			{
-				masterDetailPage = Element.InternalChildren[0] as MasterDetailPage;
+				masterDetailPage = PageController.InternalChildren[0] as MasterDetailPage;
 				if (masterDetailPage == null)
 					return;
 			}
