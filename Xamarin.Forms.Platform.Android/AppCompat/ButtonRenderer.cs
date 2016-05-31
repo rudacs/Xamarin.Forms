@@ -40,11 +40,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 		public override SizeRequest GetDesiredSize(int widthConstraint, int heightConstraint)
 		{
 			UpdateText();
-			var size = base.GetDesiredSize(widthConstraint, heightConstraint);
-
-			System.Diagnostics.Debug.WriteLine($"GetDesiredSize, Height = {size.Request.Height}");
-
-			return size;
+			return base.GetDesiredSize(widthConstraint, heightConstraint);
 		}
 
 		protected override void OnLayout(bool changed, int l, int t, int r, int b)
@@ -55,7 +51,7 @@ namespace Xamarin.Forms.Platform.Android.AppCompat
 				// we just need to adjust the padding so it centers vertically
 				var diff = (b - t - _imageHeight) / 2;
 				diff = Math.Max(diff, 0);
-				Control.SetPadding(0, diff, 0, -diff);
+				Control?.SetPadding(0, diff, 0, -diff);
 			}
 
 			base.OnLayout(changed, l, t, r, b);

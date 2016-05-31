@@ -55,7 +55,7 @@ namespace Xamarin.Forms.Platform.Android
 				// we just need to adjust the padding so it centers vertically
 				var diff = (b - t - _imageHeight) / 2;
 				diff = Math.Max(diff, 0);
-				Control.SetPadding(0, diff, 0, -diff);
+				Control?.SetPadding(0, diff, 0, -diff);
 			}
 
 			base.OnLayout(changed, l, t, r, b);
